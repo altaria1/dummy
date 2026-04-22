@@ -1,0 +1,48 @@
+#!/usr/bin/env mongosh
+
+db.sales.insertMany([
+  { item: "Laptop", price: 1200, quantity: 4,  date: new Date("2023-01-01") },
+  { item: "Phone",  price: 700,  quantity: 10, date: new Date("2023-01-02") },
+  { item: "Tablet", price: 300,  quantity: 5,  date: new Date("2023-01-05") },
+  { item: "Laptop", price: 1200, quantity: 3,  date: new Date("2023-02-01") },
+  { item: "Phone",  price: 700,  quantity: 2,  date: new Date("2023-02-10") }
+])
+
+db.sales.aggregate([
+  {
+    $group: {
+      _id: "$item",
+      totalSales: { $sum: { $multiply: ["$price", "$quantity"] } }
+    }
+  }
+])
+
+db.sales.aggregate([
+  {
+    $group: {
+      _id: "$item",
+      totalQuantity: { $sum: "$quantity" }
+    }
+  }
+])
+
+db.sales.aggregate([
+  {
+    $match: {
+      date: {
+        $gte: new Date("2023-01-01"),
+        $lt:  new Date("2023-02-01")
+      }
+    }
+  }
+])
+
+db.sales.aggregate([
+  {
+    $group: {
+      _id: "$item",
+      totalSales: { $sum: { $multiply: ["$price", "$quantity"] } }
+    }
+  },
+  { $sort: { totalSales: -1 } }
+])
